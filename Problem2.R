@@ -6,8 +6,8 @@ library(dplyr)
 
 ### Set up
 
-K = 300  # Number of chromosomes in each generation
-Gmax = 20  # Maximum number of generations
+K = 150  # Number of chromosomes in each generation
+Gmax = 30  # Maximum number of generations
 Pcross = 0.9 # Crossover rate
 Pmutate = 0.05 # Mutation rate
 which_penalty = "AIC" # "AIC" or "MDL"
@@ -15,7 +15,7 @@ which_penalty = "AIC" # "AIC" or "MDL"
 
 ### Define functions
 
-random_chromosome = function(num_genes, nucleobases=c(0,1), max_non0=20){
+random_chromosome = function(num_genes, nucleobases=c(0,1), max_non0=25){
   # Generates a chromosome
   
   non0 = sample(1:num_genes, max_non0)
