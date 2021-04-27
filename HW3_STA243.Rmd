@@ -1,0 +1,395 @@
+---
+title: "HW3"
+author: "Kwan Ho Lee"
+date: "4/27/2021"
+output: html_document
+---
+
+## Problem 1
+### 1a)
+Let's take a derivative of given log-likelihood function
+$$
+\frac{d\;l(\theta)}{d\;\theta} = \frac{x_1}{2+\theta} -
+\frac{x_2+x_3}{1-\theta} + \frac{x_4}{\theta} = 0
+\\
+\iff \frac{x_1}{2+\theta} = \frac{(x_2 + x_3)\theta -
+(1-\theta)x_4}{(1-\theta)\theta}
+\\
+\iff \theta x_1 - \theta^2x_1 = (x_2+x_3)(2\theta + \theta^2) - (2 - \theta -
+\theta^2)x_4
+\\
+\iff (x_1 + x_2 + x_3 + x_4)\theta^2 + (x_4 + 2x_2 + 2x_3 - x_1)\theta - 2x_4 =
+0
+$$
+
+Substituting the oberved data, we obtain
+$199\theta^2 - 10\theta - 66= 0$.
+By using the quadratic formula, we solve and observe
+$\hat{\theta} = 0.60157$.
+
+
+### 1b)
+$$
+Q(\theta,\theta^{(k)}) = E_{\theta^{(k)}} [l_c(\theta)|\mathbf{X}]
+= E_{\theta^{(k)}} [(x_{12} + x_4) \log \theta + (x_2 +
+    x_3)\log(1-\theta)|\mathbf{X}]
+    
+    \\
+    = (E_{\theta^{(k)}} [x_{12}|\mathbf{X}] + x_4) \log \theta + (x_2 +
+    x_3)\log(1-\theta)
+= \left[ x_1 \left( \frac{\theta^{(k)}/4}{1/2 + \theta^{(k)}/4} \right)  + x_4
+\right] \log \theta + (x_2 + x_3)\log(1-\theta)
+
+$$
+
+Assume $\left( \frac{\theta^{(k)}/4}{1/2 + \theta^{(k)}/4} \right)=b$ and differentiate and set equal to $0$, then we obtain
+
+$$
+\frac{x_1b  + x_4}{\theta} - \frac{(x_2 + x_3)}{1-\theta} = 0
+\\
+\iff \theta(x_2 + x_3) = (x_1b + x_4)(1-\theta)
+\\
+\iff \theta(x_2 + x_3 + x_1b + x_4) = x_1b + x_4
+\\
+\iff \theta^{(k+1)} = \frac{x_1b + x_4}{x_2 + x_3 + x_1b + x_4}
+$$
+
+
+
+
+```{r echo=FALSE}
+expr <- function(theta) { ((1/4)*theta)/(1/2 + (1/4)*theta) }
+B <- 100
+x <- c(125,21,20,33)
+thetas <- seq(0,1,by=0.25)
+em.1 <- function(theta) {
+    for(i in 1:B) {
+        theta <- (x[1]*expr(theta) + x[4])/(x[2] + x[3] + x[1]*expr(theta) + x[4])
+    }
+  theta
+}
+results = sapply(thetas,em.1)
+results
+```
+
+### 1c)
+```{r echo=FALSE}
+a=0.60157
+
+results[1]-a
+```
+
+By comparing part a and b, we could see the difference is 1.279219e-06, which is pretty close to zero.
+
+## Problem 3
+### 3a)
+Let's develop the EM algorithm, we start with the likelihood function,
+
+$$
+L_c(\alpha) = \prod_{i=1}^n \frac{2y_i}{\alpha^2} \exp
+\left(-\frac{y_i^2}{\alpha^2} \right)
+= \frac{2^n \prod_{i=1}^n y_i}{\alpha^{2n}} \exp \left( -\frac{1}{\alpha^2}
+\sum_{i=1}^n y_i^2 \right)
+$$
+
+Then the log-likelihood function is,
+$$
+l_c(\alpha) = -2n \log \alpha - \frac{1}{\alpha^2} \sum_{i=1}^n y_i^2 + c
+$$
+
+Define an expression for $Q(\alpha,\alpha_{(k)})$,
+$$
+Q(\alpha,\alpha_{(k)}) = \mathbb{E}_{\alpha_{(k)}} [l_c(\alpha)|\mathbf{X}]
+= -2n \log \alpha - \frac{1}{\alpha^2} \sum_{i=1}^n \mathbb{E}_{\alpha_{(k)}}
+[y_i^2|\mathbf{X}]
+$$
+
+$$
+\mathbb{E}_{\alpha_{(k)}} [y_i^2|\mathbf{X}] = \mathbb{E}_{\alpha_{(k)}}
+[y_i^2|y_i=y_i] = y_i^2
+$$
+
+For the censored data, we need to integrate as below
+$$
+\mathbb{E}_{\alpha_{(k)}} [y_i^2|\mathbf{X}] = \mathbb{E}_{\alpha_{(k)}}
+[y_i^2|y_i > c_i]
+= \int_{c_i}^{\infty} \frac{2y_i^3}{\alpha_{(k)}^2} \exp \left(
+-\frac{y_i^2}{\alpha_{(k)}^2} \right) d{y_i}
+= (\alpha_{(k)}^2 + c_i^2) \exp \left( -\frac{c_i^2}{\alpha^2_{(k)}} \right)
+$$
+
+Assume $K = \sum_{i=1}^n \mathbb{E}_{\alpha^{(k)}} [y_i^2|\mathbf{X}]$, then we have 
+$$
+K = \sum_{i=1}^r y_i^2 + \sum_{i=r+1}^n (\alpha^2_{(k)} + c_i^2) \exp \left(
+-\frac{c_i^2}{\alpha^2_{(k)}} \right)
+$$
+
+For the M-step, we maximize $Q(\alpha,\alpha_{(k)})$ as below
+$$
+Q(\alpha,\alpha_{(k)}) =  -2n \log \alpha - \frac{1}{\alpha^2} M
+\frac{dQ}{d\alpha} = -\frac{2n}{\alpha} + \frac{2}{\alpha^3} M = 0
+$$
+
+### 3b)
+
+Solving for $\alpha$, we obtain $\alpha_{(k+1)} = \sqrt{K/n}$, where $K$ is given above.
+
+```{r echo=FALSE}
+data <- c(2.3,2.5,1.1,3.1)
+labels <- c(1,0,0,1)
+n = length(data)
+stopifnot(length(data) == length(labels))
+
+K <- function(alpha.k) {
+  cd <- data[which(labels==1)]
+  id <- data[which(labels==0)]
+  sum(cd^2) + sum((alpha.k^2 + id^2)*exp(-id^2/alpha.k^2))
+}
+
+b <- 100
+alphas <- seq(1,10,1)
+em.2 <- function(alpha) {
+  for(i in 1:b) { alpha <- sqrt(K(alpha)/n) }
+  alpha
+}
+results = sapply(alphas,em.2)
+results
+```
+
+We run the algorithm for $100$ iterations with $10$ distinct starting points 
+$\alpha^{(0)} = 1, 2, ..., 10$, we obtain $\hat{\alpha} = 2.567647$ for
+each distinct starting point.
+
+## Problem 4
+
+$f(x)\propto e^{-x} \implies f(x) = \frac{1}{N}e^{-x}$ where
+$N = (\int_{0}^{2}e^{-x}dx)^{-1} = \frac{1}{1-e^{-2}}$.
+$$F(x) = \frac{1}{N}\int_{0}^{x}e^{-y}dy =
+\frac{1-e^{-x}}{1-e^{-2}}1_{x\in[0,2]} $$
+
+
+By inverting $F(x)$, we could observe below
+$$F(x) = u \implies \frac{1-e^{-x}}{1-e^{-2}} = u \implies
+(1-e^{-2})u = 1-e^{-x} \implies x = -\log(1-u(1-e^{-2})) $$
+
+
+```{r echo=FALSE}
+library(ggplot2) # pretty plotting
+
+
+K = 5000 # Number of samples
+NN = (1 - exp(-2)) # Normalizing constant
+
+
+fx = function(x){
+    # pdf for random variable X
+    if(x<0){return(0)}
+    if(x>2){return(0)}
+
+    r = exp(-x) / NN
+    return(r)
+}
+
+Fx = function(x){
+    # cdf for random variable X
+    if(x<0){return(0)}
+    if(x>2){return(0)}
+
+    r = (1 - exp(-x)) / NN
+    return(r)
+}
+
+Fu = function(u){
+    # Inverse cdf for the random variable X
+    if(u<0){return(NaN)}
+    if(u>1){return(NaN)}
+
+    r = -log(1 - u*(1-exp(-2)))
+    return(r)
+}
+
+
+## Simulate
+Fuv = Vectorize(Fu) 
+us = runif(K, 0, 1) # K samples from U(0,1)
+inv_xs = Fuv(us) # Inverse sampling method
+
+## Plot results
+
+plt_xs = seq(0, 2, length.out = 100) # xs for true fx(x) pdf
+fxv = Vectorize(fx)
+plt_ys = fxv(plt_xs) # true fx(x) = ys
+
+df_tru = data.frame(x_tru = plt_xs, y_tru = plt_ys)
+df_sim = data.frame(x_sim = inv_xs)
+
+plt1 = ggplot() +
+    geom_histogram( # Simulated distribution
+                data = df_sim,
+                aes(x = x_sim, y = ..density..),
+                binwidth = 0.05,
+                color="royalblue",
+                fill="slategray3"
+            ) +
+    geom_line( # True distribution
+                data = df_tru,
+                aes(x = x_tru, y = y_tru),
+                color="deeppink2"
+            ) +
+    labs(
+                title = "True PDF and inverse samples",
+                x = "X",
+                y = "Density"
+            )
+plt1
+```
+
+
+## Problem 5
+
+We need to find the normalization constant $N$ as follows,
+$f(x) = \frac{1}{N}\frac{e^{-x}}{1+x^2}$ so
+$\int_0^{\infty} f(x)dx = 1 \implies
+N = \int_{0}^{\infty} q(x)dx \approx 0.62145$.
+
+Then, we need to find the envelope constants $M_i$ for $i\in\{0,1\}$.
+  
+For next step, we find $M_1$ such that $f(x)\le M_1g_1(x)$ for all $x>0$,
+
+$f(x) = \frac{1}{N}q(x) = \frac{1}{N}\frac{e^{-x}}{1+x^2} \le
+M_1g_1(x) = M_1e^{-x}$ so
+$NM_1 \ge \frac{1}{1+x^2} \implies
+M_1 = \frac{1}{N} \sup_{x>0} \frac{1}{1+x^2} \implies
+M_1 = \frac{1}{N}$
+
+$$M_1 = \frac{1}{N}$$$
+  
+We also need to find $M_2$ such that $f(x)\le M_2g_2(x)$ for all $x>0$,
+
+$\frac{1}{N}\frac{e^{-x}}{1+x^2} \le
+M_2g_2(x) = M_2\frac{2}{\pi(1+x^2)}$ so
+$\frac{e^{-x}}{N} \le \frac{2M_2}{\pi} \implies
+M_2 \ge \frac{\pi e^{-x}}{N} \implies
+M_2 = \sup_{x>0}\frac{\pi e^{-x}}{N} = \frac{\pi}{N}$
+
+$$M_2 = \sup_{x>0}\frac{\pi e^{-x}}{N} = \frac{\pi}{N}$$
+
+
+### 5a)
+```{r echo=FALSE}
+library(reshape)
+
+K = 5000
+NN = 0.62145 # normalizing constant
+M1 = 1/NN # Resampling constant fx(x) <= M*g1(x) for all x
+M2 = pi/NN
+
+
+fx = Vectorize(function(x){
+    # pdf for problem 4
+    if(x<0){return(0)}
+    r = exp(-x) / (1+x^2) / NN
+    return(r)
+})
+
+g1 = Vectorize(function(x){
+    # First envelope density for rejection sampling
+    if(x<0){return(0)}
+    r = exp(-x)
+    return(r)
+})
+
+g2 = Vectorize(function(x){
+    # Second envelope density for rejection sampling
+    if(x<0){return(0)}
+    r = 2/(pi*(1+x^2))
+    return(r)
+})
+
+```
+
+
+```{r echo=FALSE}
+## g1
+
+N = 200 
+xdisc = seq(0,5,length.out=N) 
+g1i = 1 
+i = 1 
+g1rs = rep(NA, K) # initialize empty result vector
+while(i <= K){
+    x = sample(xdisc, 1, prob=g1(xdisc)) # proposition from envelope
+    u = runif(1)
+    w = fx(x)/(M1*g1(x))
+    if(w>u){
+        
+        g1rs[i] = x
+        i = i + 1
+    }
+    g1i = g1i + 1
+}
+
+## g2
+
+g2i = 1 # #of loops that this envelope rejection sampling takes
+i = 1 
+g2rs = rep(NA, K) 
+while(i <= K){
+    x = sample(xdisc, 1, prob=g2(xdisc)) # proposition from envelope
+    u = runif(1)
+    w = fx(x)/(M2*g2(x))
+    if(w>u){
+        # Accept sample
+        g2rs[i] = x
+        i = i + 1
+    }
+    g2i = g2i + 1
+}
+
+
+
+## Plot
+
+true_df = data.frame(x=xdisc,
+                     g1=g1(xdisc),
+                     g2=g2(xdisc),
+                     f=fx(xdisc)
+                     )
+true_df_m = melt(true_df, id="x")
+names(true_df_m) = c("x", "Distribution", "y")
+
+plt3 = ggplot() +
+    geom_line(data=true_df_m,
+              aes(x=x, y=y, color=Distribution)) +
+    labs(title="Target Distribution and Envelopes",
+         x="X", y="Probability")
+plt3
+
+gsim_df = data.frame(g1=g1rs, g2=g2rs)
+plt4 = ggplot() + # g1 simulation results histogram
+    geom_histogram(data=gsim_df,
+                   mapping=aes(x=g1,y=..density..),
+                   binwidth=0.08) +
+    geom_line(data=true_df_m[true_df_m$Distribution != "g2",],
+              aes(x=x, y=y, color=Distribution)) +
+    labs(title="Envelope sampling from g1",
+         x="X", y="Frequency")
+plt4
+
+plt5 = ggplot() + # g2 simulation results histogram
+    geom_histogram(data=gsim_df,
+                   mapping=aes(x=g2,y=..density..),
+                   binwidth=0.08) +
+    geom_line(data=true_df_m[true_df_m$Distribution != "g1",],
+              aes(x=x, y=y, color=Distribution)) +
+    labs(title="Envelope sampling from g2",
+         x="X", y="Frequency")
+plt5
+```
+
+
+### 5b)
+The results of envelope sampling for both $g_1(x)$ and
+$g_2(x)$ are pretty similar. However, 
+
+
