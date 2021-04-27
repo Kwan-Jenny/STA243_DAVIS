@@ -33,13 +33,11 @@ $$
 Q(\theta,\theta^{(k)}) = E_{\theta^{(k)}} [l_c(\theta)|\mathbf{X}]
 = E_{\theta^{(k)}} [(x_{12} + x_4) \log \theta + (x_2 +
     x_3)\log(1-\theta)|\mathbf{X}]
-    
-    \\
-    = (E_{\theta^{(k)}} [x_{12}|\mathbf{X}] + x_4) \log \theta + (x_2 +
+\\
+= (E_{\theta^{(k)}} [x_{12}|\mathbf{X}] + x_4) \log \theta + (x_2 +
     x_3)\log(1-\theta)
 = \left[ x_1 \left( \frac{\theta^{(k)}/4}{1/2 + \theta^{(k)}/4} \right)  + x_4
 \right] \log \theta + (x_2 + x_3)\log(1-\theta)
-
 $$
 
 Assume $\left( \frac{\theta^{(k)}/4}{1/2 + \theta^{(k)}/4} \right)=b$ and differentiate and set equal to $0$, then we obtain
