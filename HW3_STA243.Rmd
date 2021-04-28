@@ -180,7 +180,7 @@ NN = (1 - exp(-2)) # Normalizing constant
 
 
 fx = function(x){
-    # pdf for random variable X
+                           # pdf for random variable X
     if(x<0){return(0)}
     if(x>2){return(0)}
 
@@ -189,7 +189,7 @@ fx = function(x){
 }
 
 Fx = function(x){
-    # cdf for random variable X
+                           # cdf for random variable X
     if(x<0){return(0)}
     if(x>2){return(0)}
 
@@ -198,7 +198,7 @@ Fx = function(x){
 }
 
 Fu = function(u){
-    # Inverse cdf for the random variable X
+                           # Inverse cdf for the random variable X
     if(u<0){return(NaN)}
     if(u>1){return(NaN)}
 
@@ -209,14 +209,14 @@ Fu = function(u){
 
 ## Simulate
 Fuv = Vectorize(Fu) 
-us = runif(K, 0, 1) # K samples from U(0,1)
-inv_xs = Fuv(us) # Inverse sampling method
+us = runif(K, 0, 1)        # K samples from U(0,1)
+inv_xs = Fuv(us)           # Inverse sampling method
 
 ## Plot results
 
 plt_xs = seq(0, 2, length.out = 100) # xs for true fx(x) pdf
 fxv = Vectorize(fx)
-plt_ys = fxv(plt_xs) # true fx(x) = ys
+plt_ys = fxv(plt_xs) 
 
 df_tru = data.frame(x_tru = plt_xs, y_tru = plt_ys)
 df_sim = data.frame(x_sim = inv_xs)
@@ -284,21 +284,21 @@ M2 = pi/NN
 
 
 fx = Vectorize(function(x){
-    # pdf for problem 4
+   
     if(x<0){return(0)}
     r = exp(-x) / (1+x^2) / NN
     return(r)
 })
 
 g1 = Vectorize(function(x){
-    # First envelope density for rejection sampling
+                          # First envelope density for rejection sampling
     if(x<0){return(0)}
     r = exp(-x)
     return(r)
 })
 
 g2 = Vectorize(function(x){
-    # Second envelope density for rejection sampling
+                          # Second envelope density for rejection sampling
     if(x<0){return(0)}
     r = 2/(pi*(1+x^2))
     return(r)
@@ -316,7 +316,7 @@ g1i = 1
 i = 1 
 g1rs = rep(NA, K) # initialize empty result vector
 while(i <= K){
-    x = sample(xdisc, 1, prob=g1(xdisc)) # proposition from envelope
+    x = sample(xdisc, 1, prob=g1(xdisc)) 
     u = runif(1)
     w = fx(x)/(M1*g1(x))
     if(w>u){
@@ -333,11 +333,11 @@ g2i = 1 # #of loops that this envelope rejection sampling takes
 i = 1 
 g2rs = rep(NA, K) 
 while(i <= K){
-    x = sample(xdisc, 1, prob=g2(xdisc)) # proposition from envelope
+    x = sample(xdisc, 1, prob=g2(xdisc))
     u = runif(1)
     w = fx(x)/(M2*g2(x))
     if(w>u){
-        # Accept sample
+        
         g2rs[i] = x
         i = i + 1
     }
