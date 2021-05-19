@@ -826,7 +826,7 @@ Notice that the sample in grey follows the target distribution in red rather
 than the sampling envelope in blue even though the target and envelope have
 a small inner product.
 Furthermore, we can test the accuracy of this simulation using the following
-facts about the target distribution:
+the target distribution:
 
 $$
 E_{f}(Z) = \sqrt{\frac{\theta_2}{\theta_1}} =
@@ -836,8 +836,7 @@ E_{f}(\frac{1}{Z}) = \sqrt{\frac{\theta_1}{\theta_2}} + \frac{1}{2\theta_2} =
 `r sqrt(t1/t2)+1/(2*t2)`
 $$
 
-In the sample produced by the Metropolis-Hastings algorithm above, it is the
-case that
+In the sample produced by the M-H algorithm above:
 
 $$
 \frac{1}{N}\sum_{i=1}^{N} z_i = `r mean(samp)`
@@ -845,7 +844,5 @@ $$
 \frac{1}{N}\sum_{i=1}^{N} \frac{1}{z_i} = `r mean(1/samp)`
 $$
 
-Notice that the test statistics and their true values are close, indicating by
-another means that the sample is indeed accurately drawn from $f(z)$, as
-desired.
-
+Notice that the test statistics and their true values are pretty close, indicating by
+another means that the sample is accurately drawn from $f(z)$
